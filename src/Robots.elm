@@ -1,4 +1,4 @@
-module Robots exposing (..)
+module Robots exposing (Path(..), Policy, Robots, robots)
 
 
 type Path
@@ -51,7 +51,14 @@ pathToEntry pathType attr =
         MultiPath multiple ->
             multiple
                 |> List.map (\path -> pathAttributeToString attr ++ path)
-                |> String.join ", "
+                |> listToSection
+
+
+listToSection : List String -> String
+listToSection list =
+    list
+        |> List.filter (\a -> a /= "")
+        |> String.join "\n"
 
 
 robots : Robots -> String
@@ -73,11 +80,10 @@ robots { sitemap, host, policies } =
                     Nothing ->
                         ""
                 ]
-                    |> List.filter (\a -> a /= "")
-                    |> String.join "\n"
+                    |> listToSection
             )
-        |> String.join "\n"
+        |> listToSection
     , pathToEntry sitemap Sitemap
     , "Host: " ++ host
     ]
-        |> String.join "\n"
+        |> listToSection
