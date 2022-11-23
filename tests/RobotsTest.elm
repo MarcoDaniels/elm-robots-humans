@@ -1,7 +1,7 @@
 module RobotsTest exposing (..)
 
 import Expect exposing (equal)
-import Robots exposing (Path, robots)
+import Robots exposing (Value, robots)
 import Test exposing (Test, describe, test)
 
 
@@ -11,11 +11,11 @@ suite =
         [ test "one policy & single paths" <|
             \() ->
                 robots
-                    { sitemap = Robots.SinglePath "/sitemap.xml"
+                    { sitemap = Robots.SingleValue "/sitemap.xml"
                     , host = "https://marcodaniels.com"
                     , policies =
-                        [ { userAgent = "*"
-                          , allow = Just (Robots.SinglePath "*")
+                        [ { userAgent = Robots.SingleValue "*"
+                          , allow = Just (Robots.SingleValue "*")
                           , disallow = Nothing
                           }
                         ]
@@ -28,11 +28,11 @@ Host: https://marcodaniels.com"""
         , test "multiple policies & disallow" <|
             \() ->
                 robots
-                    { sitemap = Robots.SinglePath "/sitemap.xml"
+                    { sitemap = Robots.SingleValue "/sitemap.xml"
                     , host = "https://marcodaniels.com"
                     , policies =
-                        [ { userAgent = "Googlebot", allow = Nothing, disallow = Just (Robots.SinglePath "/not-here-bot") }
-                        , { userAgent = "*", allow = Just (Robots.SinglePath "/"), disallow = Nothing }
+                        [ { userAgent = Robots.SingleValue "Googlebot", allow = Nothing, disallow = Just (Robots.SingleValue "/not-here-bot") }
+                        , { userAgent = Robots.SingleValue "*", allow = Just (Robots.SingleValue "/"), disallow = Nothing }
                         ]
                     }
                     |> equal
@@ -45,7 +45,7 @@ Host: https://marcodaniels.com"""
         , test "multiple paths" <|
             \() ->
                 robots
-                    { sitemap = Robots.MultiPath [ "/en/sitemap.xml", "/pt/sitemap.xml" ]
+                    { sitemap = Robots.MultiValue [ "/en/sitemap.xml", "/pt/sitemap.xml" ]
                     , host = "https://marcodaniels.com"
                     , policies = []
                     }

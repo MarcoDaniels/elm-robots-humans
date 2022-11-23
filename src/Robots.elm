@@ -1,21 +1,15 @@
-module Robots exposing (Path(..), Policy, Robots, robots)
+module Robots exposing (Policy, Robots, Value(..), robots)
 
 
-type Path
-    = SinglePath String
-    | MultiPath (List String)
-
-
-type PathAttribute
-    = Sitemap
-    | Allow
-    | Disallow
+type Value
+    = SingleValue String
+    | MultiValue (List String)
 
 
 type alias Policy =
-    { userAgent : String
-    , allow : Maybe Path
-    , disallow : Maybe Path
+    { userAgent : Value
+    , allow : Maybe Value
+    , disallow : Maybe Value
 
     --    , crawlDelay : Maybe Int -- TODO: make it withCrawlDelay
     --    , cleanParam : Maybe String -- TODO: make is withCleanParam
@@ -25,40 +19,8 @@ type alias Policy =
 type alias Robots =
     { policies : List Policy
     , host : String
-    , sitemap : Path
+    , sitemap : Value
     }
-
-
-pathAttributeToString : PathAttribute -> String
-pathAttributeToString att =
-    case att of
-        Sitemap ->
-            "Sitemap: "
-
-        Allow ->
-            "Allow: "
-
-        Disallow ->
-            "Disallow: "
-
-
-pathToEntry : Path -> PathAttribute -> String
-pathToEntry pathType attr =
-    case pathType of
-        SinglePath path ->
-            pathAttributeToString attr ++ path
-
-        MultiPath multiple ->
-            multiple
-                |> List.map (\path -> pathAttributeToString attr ++ path)
-                |> listToSection
-
-
-listToSection : List String -> String
-listToSection list =
-    list
-        |> List.filter (\a -> a /= "")
-        |> String.join "\n"
 
 
 robots : Robots -> String
@@ -66,7 +28,7 @@ robots { sitemap, host, policies } =
     [ policies
         |> List.map
             (\policy ->
-                [ "User-agent: " ++ policy.userAgent
+                [ pathToEntry policy.userAgent UserAgent
                 , case policy.allow of
                     Just allow ->
                         pathToEntry allow Allow
@@ -87,3 +49,49 @@ robots { sitemap, host, policies } =
     , "Host: " ++ host
     ]
         |> listToSection
+
+
+
+--- Internal only
+
+
+type PathAttribute
+    = Sitemap
+    | Allow
+    | Disallow
+    | UserAgent
+
+
+pathAttributeToString : PathAttribute -> String
+pathAttributeToString att =
+    case att of
+        Sitemap ->
+            "Sitemap: "
+
+        Allow ->
+            "Allow: "
+
+        Disallow ->
+            "Disallow: "
+
+        UserAgent ->
+            "User-agent: "
+
+
+pathToEntry : Value -> PathAttribute -> String
+pathToEntry pathType attr =
+    case pathType of
+        SingleValue path ->
+            pathAttributeToString attr ++ path
+
+        MultiValue multiple ->
+            multiple
+                |> List.map (\path -> pathAttributeToString attr ++ path)
+                |> listToSection
+
+
+listToSection : List String -> String
+listToSection list =
+    list
+        |> List.filter (\a -> a /= "")
+        |> String.join "\n"
