@@ -23,7 +23,9 @@ suite =
                     |> equal
                         """User-agent: *
 Allow: *
+
 Sitemap: /sitemap.xml
+
 Host: https://marcodaniels.com"""
         , test "multiple policies & disallow" <|
             \() ->
@@ -38,9 +40,12 @@ Host: https://marcodaniels.com"""
                     |> equal
                         """User-agent: Googlebot
 Disallow: /not-here-bot
+
 User-agent: *
 Allow: /
+
 Sitemap: /sitemap.xml
+
 Host: https://marcodaniels.com"""
         , test "multiple paths" <|
             \() ->
@@ -52,6 +57,7 @@ Host: https://marcodaniels.com"""
                     |> equal
                         """Sitemap: /en/sitemap.xml
 Sitemap: /pt/sitemap.xml
+
 Host: https://marcodaniels.com"""
         , test "multiple user agent" <|
             \() ->
@@ -69,6 +75,28 @@ Host: https://marcodaniels.com"""
                         """User-agent: Googlebot
 User-agent: AdsBot-Google
 Disallow: /
+
 Sitemap: /sitemap.xml
+
+Host: https://marcodaniels.com"""
+        , test "multiple disallow items" <|
+            \() ->
+                robots
+                    { sitemap = Robots.SingleValue "/sitemap.xml"
+                    , host = "https://marcodaniels.com"
+                    , policies =
+                        [ { userAgent = Robots.SingleValue "*"
+                          , allow = Nothing
+                          , disallow = Just (Robots.MultiValue ["/admin", "/not-allow"])
+                          }
+                        ]
+                    }
+                    |> equal
+                        """User-agent: *
+Disallow: /admin
+Disallow: /not-allow
+
+Sitemap: /sitemap.xml
+
 Host: https://marcodaniels.com"""
         ]

@@ -42,13 +42,13 @@ robots { sitemap, host, policies } =
                     Nothing ->
                         ""
                 ]
-                    |> listToSection
+                    |> ruleToFile Entry
             )
-        |> listToSection
+        |> ruleToFile Section
     , pathToEntry sitemap Sitemap
     , pathToEntry (SingleValue host) Host
     ]
-        |> listToSection
+        |> ruleToFile Section
 
 
 
@@ -91,11 +91,23 @@ pathToEntry pathType attr =
         MultiValue multiple ->
             multiple
                 |> List.map (\path -> pathAttributeToString attr ++ path)
-                |> listToSection
+                |> ruleToFile Entry
 
 
-listToSection : List String -> String
-listToSection list =
-    list
-        |> List.filter (\a -> a /= "")
-        |> String.join "\n"
+type Rule
+    = Entry
+    | Section
+
+
+ruleToFile : Rule -> List String -> String
+ruleToFile =
+    \rule list ->
+        list
+            |> List.filter (\item -> item /= "")
+            |> (case rule of
+                    Entry ->
+                        String.join "\n"
+
+                    Section ->
+                        String.join "\n\n"
+               )
