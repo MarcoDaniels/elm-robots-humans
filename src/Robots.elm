@@ -46,7 +46,7 @@ robots { sitemap, host, policies } =
             )
         |> listToSection
     , pathToEntry sitemap Sitemap
-    , "Host: " ++ host
+    , pathToEntry (SingleValue host) Host
     ]
         |> listToSection
 
@@ -60,6 +60,7 @@ type PathAttribute
     | Allow
     | Disallow
     | UserAgent
+    | Host
 
 
 pathAttributeToString : PathAttribute -> String
@@ -76,6 +77,9 @@ pathAttributeToString att =
 
         UserAgent ->
             "User-agent: "
+
+        Host ->
+            "Host: "
 
 
 pathToEntry : Value -> PathAttribute -> String

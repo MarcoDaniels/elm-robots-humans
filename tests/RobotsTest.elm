@@ -53,4 +53,22 @@ Host: https://marcodaniels.com"""
                         """Sitemap: /en/sitemap.xml
 Sitemap: /pt/sitemap.xml
 Host: https://marcodaniels.com"""
+        , test "multiple user agent" <|
+            \() ->
+                robots
+                    { sitemap = Robots.SingleValue "/sitemap.xml"
+                    , host = "https://marcodaniels.com"
+                    , policies =
+                        [ { userAgent = Robots.MultiValue [ "Googlebot", "AdsBot-Google" ]
+                          , allow = Nothing
+                          , disallow = Just (Robots.SingleValue "/")
+                          }
+                        ]
+                    }
+                    |> equal
+                        """User-agent: Googlebot
+User-agent: AdsBot-Google
+Disallow: /
+Sitemap: /sitemap.xml
+Host: https://marcodaniels.com"""
         ]
