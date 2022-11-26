@@ -1,4 +1,4 @@
-module Robots exposing (Policy, PolicyExtra, Robots, Value(..), policy, robots, withCrawlDelay)
+module Robots exposing (Policy, PolicyExtra, Robots, Value(..), policy, robots, withCleanParam, withCrawlDelay)
 
 
 type Value
@@ -65,6 +65,12 @@ robots { sitemap, host, policies } =
 
                     Nothing ->
                         ""
+                , case pol.crawlDelay of
+                    Just delay ->
+                        pathAttributeToString CrawlDelay ++ String.fromInt delay
+
+                    Nothing ->
+                        ""
                 ]
                     |> ruleToFile Entry
             )
@@ -85,6 +91,7 @@ type PathAttribute
     | Disallow
     | UserAgent
     | Host
+    | CrawlDelay
 
 
 pathAttributeToString : PathAttribute -> String
@@ -104,6 +111,9 @@ pathAttributeToString att =
 
         Host ->
             "Host: "
+
+        CrawlDelay ->
+            "Crawl-delay: "
 
 
 pathToEntry : Value -> PathAttribute -> String
