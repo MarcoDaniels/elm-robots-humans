@@ -1,7 +1,7 @@
 module RobotsTest exposing (..)
 
 import Expect exposing (equal)
-import Robots exposing (Value, robots)
+import Robots exposing (Value, policy, robots)
 import Test exposing (Test, describe, test)
 
 
@@ -14,10 +14,11 @@ suite =
                     { sitemap = Robots.SingleValue "/sitemap.xml"
                     , host = "https://marcodaniels.com"
                     , policies =
-                        [ { userAgent = Robots.SingleValue "*"
-                          , allow = Just (Robots.SingleValue "*")
-                          , disallow = Nothing
-                          }
+                        [ policy
+                            { userAgent = Robots.SingleValue "*"
+                            , allow = Just (Robots.SingleValue "*")
+                            , disallow = Nothing
+                            }
                         ]
                     }
                     |> equal
@@ -33,8 +34,8 @@ Host: https://marcodaniels.com"""
                     { sitemap = Robots.SingleValue "/sitemap.xml"
                     , host = "https://marcodaniels.com"
                     , policies =
-                        [ { userAgent = Robots.SingleValue "Googlebot", allow = Nothing, disallow = Just (Robots.SingleValue "/not-here-bot") }
-                        , { userAgent = Robots.SingleValue "*", allow = Just (Robots.SingleValue "/"), disallow = Nothing }
+                        [ policy { userAgent = Robots.SingleValue "Googlebot", allow = Nothing, disallow = Just (Robots.SingleValue "/not-here-bot") }
+                        , policy { userAgent = Robots.SingleValue "*", allow = Just (Robots.SingleValue "/"), disallow = Nothing }
                         ]
                     }
                     |> equal
@@ -65,10 +66,11 @@ Host: https://marcodaniels.com"""
                     { sitemap = Robots.SingleValue "/sitemap.xml"
                     , host = "https://marcodaniels.com"
                     , policies =
-                        [ { userAgent = Robots.MultiValue [ "Googlebot", "AdsBot-Google" ]
-                          , allow = Nothing
-                          , disallow = Just (Robots.SingleValue "/")
-                          }
+                        [ policy
+                            { userAgent = Robots.MultiValue [ "Googlebot", "AdsBot-Google" ]
+                            , allow = Nothing
+                            , disallow = Just (Robots.SingleValue "/")
+                            }
                         ]
                     }
                     |> equal
@@ -85,10 +87,11 @@ Host: https://marcodaniels.com"""
                     { sitemap = Robots.SingleValue "/sitemap.xml"
                     , host = "https://marcodaniels.com"
                     , policies =
-                        [ { userAgent = Robots.SingleValue "*"
-                          , allow = Nothing
-                          , disallow = Just (Robots.MultiValue ["/admin", "/not-allow"])
-                          }
+                        [ policy
+                            { userAgent = Robots.SingleValue "*"
+                            , allow = Nothing
+                            , disallow = Just (Robots.MultiValue [ "/admin", "/not-allow" ])
+                            }
                         ]
                     }
                     |> equal

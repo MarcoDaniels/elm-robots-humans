@@ -1,4 +1,4 @@
-module Robots exposing (Policy, Robots, Value(..), robots)
+module Robots exposing (Policy, PolicyExtra, Robots, Value(..), policy, robots, withCrawlDelay)
 
 
 type Value
@@ -10,14 +10,38 @@ type alias Policy =
     { userAgent : Value
     , allow : Maybe Value
     , disallow : Maybe Value
-
-    --    , crawlDelay : Maybe Int -- TODO: make it withCrawlDelay
-    --    , cleanParam : Maybe String -- TODO: make is withCleanParam
     }
 
 
+type alias PolicyExtra base =
+    { base
+        | crawlDelay : Maybe Int
+        , cleanParam : Maybe String
+    }
+
+
+policy : Policy -> PolicyExtra Policy
+policy { userAgent, allow, disallow } =
+    { userAgent = userAgent
+    , allow = allow
+    , disallow = disallow
+    , crawlDelay = Nothing
+    , cleanParam = Nothing
+    }
+
+
+withCrawlDelay : Int -> PolicyExtra Policy -> PolicyExtra Policy
+withCrawlDelay delay extra =
+    { extra | crawlDelay = Just delay }
+
+
+withCleanParam : String -> PolicyExtra Policy -> PolicyExtra Policy
+withCleanParam param extra =
+    { extra | cleanParam = Just param }
+
+
 type alias Robots =
-    { policies : List Policy
+    { policies : List (PolicyExtra Policy)
     , host : String
     , sitemap : Value
     }
@@ -27,15 +51,15 @@ robots : Robots -> String
 robots { sitemap, host, policies } =
     [ policies
         |> List.map
-            (\policy ->
-                [ pathToEntry policy.userAgent UserAgent
-                , case policy.allow of
+            (\pol ->
+                [ pathToEntry pol.userAgent UserAgent
+                , case pol.allow of
                     Just allow ->
                         pathToEntry allow Allow
 
                     Nothing ->
                         ""
-                , case policy.disallow of
+                , case pol.disallow of
                     Just disallow ->
                         pathToEntry disallow Disallow
 
