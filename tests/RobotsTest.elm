@@ -1,7 +1,7 @@
 module RobotsTest exposing (..)
 
 import Expect exposing (equal)
-import Robots exposing (Value, policy, robots)
+import Robots exposing (Value, policy, robots, withCrawlDelay)
 import Test exposing (Test, describe, test)
 
 
@@ -98,6 +98,27 @@ Host: https://marcodaniels.com"""
                         """User-agent: *
 Disallow: /admin
 Disallow: /not-allow
+
+Sitemap: /sitemap.xml
+
+Host: https://marcodaniels.com"""
+        , test "policy with crawl delay" <|
+            \() ->
+                robots
+                    { sitemap = Robots.SingleValue "/sitemap.xml"
+                    , host = "https://marcodaniels.com"
+                    , policies =
+                        [ policy
+                            { userAgent = Robots.SingleValue "*"
+                            , allow = Just (Robots.SingleValue "*")
+                            , disallow = Nothing
+                            } |> withCrawlDelay 10
+                        ]
+                    }
+                    |> equal
+                        """User-agent: *
+Allow: *
+Crawl-delay: 10
 
 Sitemap: /sitemap.xml
 
