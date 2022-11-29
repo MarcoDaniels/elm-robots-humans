@@ -22,7 +22,7 @@ suite =
                         ]
                     }
                     |> equal
-                        """User-agent: *
+                        """User-agent: 
 Allow: *
 
 Sitemap: /sitemap.xml
