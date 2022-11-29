@@ -1,4 +1,4 @@
-module Robots exposing (Policy, PolicyExtra, Robots, Value(..), policy, robots, withCleanParam, withCrawlDelay)
+module Robots exposing (CleanParam, Policy, PolicyExtra, Robots, Value(..), policy, robots, withCleanParam, withCrawlDelay)
 
 
 type Value
@@ -7,17 +7,15 @@ type Value
 
 
 type alias Policy =
-    { userAgent : Value
-    , allow : Maybe Value
-    , disallow : Maybe Value
-    }
+    { userAgent : Value, allow : Maybe Value, disallow : Maybe Value }
+
+
+type alias CleanParam =
+    { param : String, path : String }
 
 
 type alias PolicyExtra base =
-    { base
-        | crawlDelay : Maybe Int
-        , cleanParam : Maybe String
-    }
+    { base | crawlDelay : Maybe Int, cleanParam : Maybe (List CleanParam) }
 
 
 policy : Policy -> PolicyExtra Policy
@@ -35,7 +33,7 @@ withCrawlDelay delay extra =
     { extra | crawlDelay = Just delay }
 
 
-withCleanParam : String -> PolicyExtra Policy -> PolicyExtra Policy
+withCleanParam : List CleanParam -> PolicyExtra Policy -> PolicyExtra Policy
 withCleanParam param extra =
     { extra | cleanParam = Just param }
 
@@ -71,6 +69,14 @@ robots { sitemap, host, policies } =
 
                     Nothing ->
                         ""
+                , case pol.cleanParam of
+                    Just cleanParams ->
+                        cleanParams
+                            |> List.map (\{ param, path } -> pathAttributeToString CleanParamAtt ++ param ++ " " ++ path)
+                            |> ruleToFile Entry
+
+                    Nothing ->
+                        ""
                 ]
                     |> ruleToFile Entry
             )
@@ -92,6 +98,7 @@ type PathAttribute
     | UserAgent
     | Host
     | CrawlDelay
+    | CleanParamAtt
 
 
 pathAttributeToString : PathAttribute -> String
@@ -114,6 +121,9 @@ pathAttributeToString att =
 
         CrawlDelay ->
             "Crawl-delay: "
+
+        CleanParamAtt ->
+            "Clean-param: "
 
 
 pathToEntry : Value -> PathAttribute -> String
