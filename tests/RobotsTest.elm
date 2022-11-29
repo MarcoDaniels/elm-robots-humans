@@ -1,7 +1,7 @@
 module RobotsTest exposing (..)
 
 import Expect exposing (equal)
-import Robots exposing (Value, policy, robots, withCrawlDelay)
+import Robots exposing (Value, policy, robots, withCleanParam, withCrawlDelay)
 import Test exposing (Test, describe, test)
 
 
@@ -112,13 +112,59 @@ Host: https://marcodaniels.com"""
                             { userAgent = Robots.SingleValue "*"
                             , allow = Just (Robots.SingleValue "*")
                             , disallow = Nothing
-                            } |> withCrawlDelay 10
+                            }
+                            |> withCrawlDelay 10
                         ]
                     }
                     |> equal
                         """User-agent: *
 Allow: *
 Crawl-delay: 10
+
+Sitemap: /sitemap.xml
+
+Host: https://marcodaniels.com"""
+        , test "policy with clean param" <|
+            \() ->
+                robots
+                    { sitemap = Robots.SingleValue "/sitemap.xml"
+                    , host = "https://marcodaniels.com"
+                    , policies =
+                        [ policy
+                            { userAgent = Robots.SingleValue "*"
+                            , allow = Just (Robots.SingleValue "*")
+                            , disallow = Nothing
+                            }
+                            |> withCleanParam [ { param = "id", path = "/user" } ]
+                        ]
+                    }
+                    |> equal
+                        """User-agent: *
+Allow: *
+Clean-param: id /user
+
+Sitemap: /sitemap.xml
+
+Host: https://marcodaniels.com"""
+        , test "policy with multiple clean params" <|
+            \() ->
+                robots
+                    { sitemap = Robots.SingleValue "/sitemap.xml"
+                    , host = "https://marcodaniels.com"
+                    , policies =
+                        [ policy
+                            { userAgent = Robots.SingleValue "*"
+                            , allow = Just (Robots.SingleValue "*")
+                            , disallow = Nothing
+                            }
+                            |> withCleanParam [ { param = "id", path = "/user" }, { param = "s", path = "/search" } ]
+                        ]
+                    }
+                    |> equal
+                        """User-agent: *
+Allow: *
+Clean-param: id /user
+Clean-param: s /search
 
 Sitemap: /sitemap.xml
 
