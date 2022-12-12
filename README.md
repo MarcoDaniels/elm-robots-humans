@@ -22,3 +22,20 @@ robots =
             ]
         }
 ```
+
+Example for `humans.txt`
+
+```elm
+import Humans
+
+humans: String
+humans =
+    Humans.humans
+        [ { headline = "Team"
+          , content = [ "Engineer: Marco Martins" ]
+          }
+        , { headline = "Technology"
+          , content = [ "elm, terraform, nix" ]
+          }
+        ]
+```

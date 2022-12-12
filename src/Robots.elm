@@ -8,6 +8,8 @@ Include a Robots.txt file to instruct robots (search engines) how and what pages
 
 -}
 
+import Rule exposing (Rule(..), ruleToFile)
+
 
 {-| The value type used for most entries of robots
 -}
@@ -196,22 +198,3 @@ pathToEntry pathType attr =
             multiple
                 |> List.map (\path -> pathAttributeToString attr ++ path)
                 |> ruleToFile Entry
-
-
-type Rule
-    = Entry
-    | Section
-
-
-ruleToFile : Rule -> List String -> String
-ruleToFile =
-    \rule list ->
-        list
-            |> List.filter (\item -> item /= "")
-            |> (case rule of
-                    Entry ->
-                        String.join "\n"
-
-                    Section ->
-                        String.join "\n\n"
-               )
