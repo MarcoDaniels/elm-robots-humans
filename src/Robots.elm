@@ -1,23 +1,42 @@
-module Robots exposing (CleanParam, Policy, PolicyExtra, Robots, Value(..), policy, robots, withCleanParam, withCrawlDelay)
+module Robots exposing (Value(..), Policy, Robots, policy, robots, withCrawlDelay, CleanParam, withCleanParam)
+
+{-| <https://moz.com/learn/seo/robotstxt>
+
+Include a Robots.txt file to instruct robots (search engines) how and what pages to crawl in your website.
+
+@docs Value, Policy, Robots, policy, robots, withCrawlDelay, CleanParam, withCleanParam
+
+-}
 
 
+{-| The value type used for most entries of robots
+-}
 type Value
     = SingleValue String
     | MultiValue (List String)
 
 
+{-| Policy type for robots.txt policies
+-}
 type alias Policy =
     { userAgent : Value, allow : Maybe Value, disallow : Maybe Value }
 
 
+{-| Clean-param type for [`withCleanParam`](#withCleanParam)
+-}
 type alias CleanParam =
     { param : String, path : String }
 
 
-type alias PolicyExtra base =
-    { base | crawlDelay : Maybe Int, cleanParam : Maybe (List CleanParam) }
+{-| Create a robots.txt policy entry
 
+    policy
+        { userAgent = SingleValue "*"
+        , allow = Just (SingleValue "*")
+        , disallow = Nothing
+        }
 
+-}
 policy : Policy -> PolicyExtra Policy
 policy { userAgent, allow, disallow } =
     { userAgent = userAgent
@@ -28,16 +47,38 @@ policy { userAgent, allow, disallow } =
     }
 
 
+{-| Add [crawl-delay](https://moz.com/learn/seo/robotstxt) property to the [`policy`](#policy) entry
+
+    policy
+        { userAgent = SingleValue "*"
+        , allow = Just (SingleValue "*")
+        , disallow = Nothing
+        }
+        |> withCrawlDelay 10
+
+-}
 withCrawlDelay : Int -> PolicyExtra Policy -> PolicyExtra Policy
 withCrawlDelay delay extra =
     { extra | crawlDelay = Just delay }
 
 
+{-| Add [clean param](https://yandex.com/support/webmaster/robot-workings/clean-param.html) property to the [`policy`](#policy) entry
+
+    policy
+        { userAgent = SingleValue "*"
+        , allow = Just (SingleValue "*")
+        , disallow = Nothing
+        }
+        |> withCleanParam [ { param = "id", path = "/user" } ]
+
+-}
 withCleanParam : List CleanParam -> PolicyExtra Policy -> PolicyExtra Policy
 withCleanParam param extra =
     { extra | cleanParam = Just param }
 
 
+{-| Robots.txt input type
+-}
 type alias Robots =
     { policies : List (PolicyExtra Policy)
     , host : String
@@ -45,6 +86,21 @@ type alias Robots =
     }
 
 
+{-| Creates a String with the robots.txt output
+
+    robots
+        { sitemap = SingleValue "/sitemap.xml"
+        , host = "https://marcodaniels.com"
+        , policies =
+            [ policy
+                { userAgent = SingleValue "*"
+                , allow = Just (SingleValue "*")
+                , disallow = Nothing
+                }
+            ]
+        }
+
+-}
 robots : Robots -> String
 robots { sitemap, host, policies } =
     [ policies
@@ -89,6 +145,10 @@ robots { sitemap, host, policies } =
 
 
 --- Internal only
+
+
+type alias PolicyExtra base =
+    { base | crawlDelay : Maybe Int, cleanParam : Maybe (List CleanParam) }
 
 
 type PathAttribute
