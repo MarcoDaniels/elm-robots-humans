@@ -1,14 +1,12 @@
-name: Pull Request
+name: Release
 
 on:
-  pull_request:
-    branches: [ main ]
-  push:
-    branches: [ main ]
+  release:
+    types: [ published ]
 
 jobs:
-  test:
-    name: test
+  release:
+    name: release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -27,3 +25,7 @@ jobs:
         run: nix-shell --run "elm-coverage"
       - name: Make build
         run: nix-shell --run "elm make --output /dev/null"
+      - name: Make docs
+        run: nix-shell --run "elm make --docs docs.json"
+      - name: Publish
+        run: nix-shell --run "elm publish"
